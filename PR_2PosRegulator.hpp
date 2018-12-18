@@ -12,8 +12,11 @@ class PR_2PosRegulator {
 		bool		loop(const float currValue);
 		
 		bool		get();
-		void		setTargetVal(const float targetVal);
+		void		setTarget(const float targetVal);
 		float		getTarget();
+		
+		//void		setMode(); toDO 
+		//bool		isOn(); return _mode;
 	
 	protected:
 		float		_hysteresysH;
@@ -23,6 +26,8 @@ class PR_2PosRegulator {
 		bool		_isInverseLogic;
 		float		_targetVal			= 0;
 		bool		_out 				= false;
+		
+		bool		_mode;
 };
 
 
@@ -42,7 +47,7 @@ void	PR_2PosRegulator::setup(const float hysteresysL, const float hysteresysH, c
 
 bool	PR_2PosRegulator::loop(const float targetVal, const float currValue) {
 	
-	setTargetVal(targetVal);
+	setTarget(targetVal);
 	return loop( currValue );
 }
 
@@ -64,7 +69,7 @@ bool	PR_2PosRegulator::loop(const float currValue) {
 	return _out;
 }
 
-void	PR_2PosRegulator::setTargetVal(const float targetVal) {
+void	PR_2PosRegulator::setTarget(const float targetVal) {
 	_targetVal = targetVal;
 }
 

@@ -15,7 +15,7 @@ PR_2PosRegulator	KEYWORD1
 setup			KEYWORD2	
 loop			KEYWORD2
 get				KEYWORD2
-setTargetVal	KEYWORD2
+setTarget		KEYWORD2
 getTarget		KEYWORD2
 
 
