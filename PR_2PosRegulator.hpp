@@ -1,6 +1,7 @@
 #pragma once
 
 #include <arduino.h>
+#include <PR_GetTau.hpp>
 
 class PR_2PosRegulator {
 	public:
@@ -25,7 +26,7 @@ class PR_2PosRegulator {
 		uint32_t	_minPeriodSwitch;				//[ms]
 		uint32_t	_lastSwitch 		= 0;
 		bool		_isDirectLogic;
-		float		_targetValue			= 0;
+		float		_targetValue		= 0;
 		bool		_out 				= false;
 		
 		bool		_isOnMode			= false;
@@ -34,10 +35,19 @@ class PR_2PosRegulator {
 
 PR_2PosRegulator::PR_2PosRegulator(const float hysteresysL, const float hysteresysH, const bool isDirectLogic, const uint32_t minPeriodSwitch) {
 	
-	setup(hysteresysL, hysteresysH, isDirectLogic, minPeriodSwitch); 
+	setup(hysteresysL, hysteresysH, isDirectLogic, minPeriodSwitch);
+	setMode(true);
 }	
 
 //@	output logic is direct
+//@ ---------------------->|
+//@	             |         |
+//@	             |         |
+//@	             ^<---+---------------------
+//@           hystL   |	  hystH                
+//@                 target
+//@	
+//@ output logic is inverse
 //@              <---------|---------
 //@	             |         |
 //@	             |         |
@@ -49,7 +59,7 @@ PR_2PosRegulator::PR_2PosRegulator(const float hysteresysL, const float hysteres
 
 void	PR_2PosRegulator::setup(const float hysteresysL, const float hysteresysH, const bool isDirectLogic, const uint32_t minPeriodSwitch) {
 	
-	_hysteresysL = -hysteresysL;
+	_hysteresysL = hysteresysL;
 	_hysteresysH = hysteresysH;
 	_isDirectLogic	 = isDirectLogic;
 	_minPeriodSwitch = minPeriodSwitch;
@@ -70,17 +80,14 @@ bool	PR_2PosRegulator::loop(const float currValue) {
 	
 	if ( PR_getTauMS(_lastSwitch) < _minPeriodSwitch ) return _out;
 	
-	float err = _targetValue - currValue;
-	
-	if (err < _hysteresysL) {
-		_out = !_isDirectLogic;			// 
+	if ( currValue > (_targetValue + _hysteresysH) ) {
+		_out = !_isDirectLogic;			
+		_lastSwitch = millis();		
+	}
+	else if ( currValue < (_targetValue - _hysteresysL) ) {
+		_out = _isDirectLogic; 			
 		_lastSwitch = millis();
 	}
-	else if (err > _hysteresysH) {
-		_out = _isDirectLogic; 			// 
-		_lastSwitch = millis();
-	}
-	
 	return _out;
 }
 
@@ -88,12 +95,10 @@ void	PR_2PosRegulator::setTarget(const float targetVal) {
 	_targetValue = targetVal;
 }
 
-bool	PR_2PosRegulator::get() 		{	return _out;		}
+bool	PR_2PosRegulator::get() 		{	return _out;			}
 float	PR_2PosRegulator::getTarget()	{	return _targetValue;	}
 
-void	PR_2PosRegulator::setMode(const bool mode)	{
-	_isOnMode = mode;
-}				
+void	PR_2PosRegulator::setMode(const bool mode)	{	_isOnMode = mode;	}				
 bool	PR_2PosRegulator::isOn()		{	return _isOnMode;	}
 bool	PR_2PosRegulator::getMode()		{	return _isOnMode;	}
 
