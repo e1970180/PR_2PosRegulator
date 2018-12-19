@@ -17,7 +17,9 @@ loop			KEYWORD2
 get				KEYWORD2
 setTarget		KEYWORD2
 getTarget		KEYWORD2
-
+setMode			KEYWORD2
+isOn			KEYWORD2
+getMode			KEYWORD2
 
 ######################################
 # Constants (LITERAL1)
